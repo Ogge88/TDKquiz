@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mitt Quiz</title>
+  <!-- Tailwind CSS för snygg design -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome för ikoner -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4">
+
+  <div class="max-w-xl w-full bg-slate-800 rounded-2xl shadow-2xl p-6 md:p-8 border border-slate-700">
+    
+    <!-- START SKÄRM -->
+    <div id="start-screen" class="text-center space-y-6">
+      <div class="inline-block p-4 bg-indigo-600/20 rounded-full text-indigo-400 mb-2">
+        <i class="fa-solid fa-brain text-5xl"></i>
+      </div>
+      <h1 class="text-3xl font-bold">Välkommen till Quizet!</h1>
+      <p class="text-slate-400">Testa dina kunskaper i vår utmanande frågesport.</p>
+      
+      <button onclick="startQuiz()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl transition text-lg shadow-lg shadow-indigo-600/30">
+        Starta Quiz <i class="fa-solid fa-arrow-right ml-2"></i>
+      </button>
+    </div>
+
+    <!-- QUIZ SKÄRM -->
+    <div id="quiz-screen" class="hidden space-y-6">
+      <!-- Header med framsteg -->
+      <div class="flex justify-between items-center text-sm font-medium text-slate-400">
+        <span id="question-count">Fråga 1 av 3</span>
+        <span id="timer" class="bg-slate-700 px-3 py-1 rounded-full text-indigo-300">
+          <i class="fa-regular fa-clock mr-1"></i> 15s
+        </span>
+      </div>
+
+      <!-- Fråga -->
+      <h2 id="question-text" class="text-xl font-semibold text-slate-100 min-h-[60px]">
+        Frågan laddas...
+      </h2>
+
+      <!-- Svarsalternativ -->
+      <div id="options-container" class="space-y-3">
+        <!-- Genereras dinamisk i JavaScript -->
+      </div>
+
+      <!-- Förklaring (Visas när man svarat) -->
+      <div id="explanation-box" class="hidden p-4 rounded-xl text-sm border"></div>
+
+      <!-- Nästa-knapp -->
+      <button id="next-btn" onclick="nextQuestion()" class="hidden w-full py-3 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl transition">
+        Nästa fråga <i class="fa-solid fa-chevron-right ml-1"></i>
+      </button>
+    </div>
+
+    <!-- RESULTAT SKÄRM -->
+    <div id="result-screen" class="hidden text-center space-y-6">
+      <div class="inline-block p-4 bg-yellow-500/20 rounded-full text-yellow-400">
+        <i class="fa-solid fa-trophy text-5xl"></i>
+      </div>
+      <h2 class="text-3xl font-bold">Bra jobbat!</h2>
+      <p class="text-slate-400">Du slutförde quizet.</p>
+
+      <div class="bg-slate-700/50 p-6 rounded-xl border border-slate-700">
+        <p class="text-slate-400 text-sm">Din poäng</p>
+        <p id="final-score" class="text-4xl font-extrabold text-indigo-400 mt-1">0 / 3</p>
+      </div>
+
+      <button onclick="resetQuiz()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl transition text-lg">
+        Spela igen <i class="fa-solid fa-rotate-right ml-2"></i>
+      </button>
+    </div>
+
+  </div>
+
+  <script>
+    // Frågor
+    const questions = [
+      {
+        question: "Vilket land har flest öar i världen?",
+        options: ["Sverige", "Kanada", "Indonesien", "Norge"],
+        correct: 0,
+        explanation: "Sverige har flest öar i världen, med över 267 000 öar!"
+      },
+      {
+        question: "Vilket år lanserades den första iPhonen?",
+        options: ["2005", "2007", "2009", "2010"],
+        correct: 1,
+        explanation: "Steve Jobs presenterade den första iPhonen i januari 2007."
+      },
+      {
+        question: "Vilket är världens största hav?",
+        options: ["Atlantiska oceanen", "Indiska oceanen", "Stilla havet", "Norra ishavet"],
+        correct: 2,
+        explanation: "Stilla havet täcker mer än 30% av jordens yta."
+      }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let timer;
+    let timeLeft = 15;
+    let answered = false;
+
+    function startQuiz() {
+      document.getElementById('start-screen').classList.add('hidden');
+      document.getElementById('quiz-screen').classList.remove('hidden');
+      currentQuestionIndex = 0;
+      score = 0;
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      answered = false;
+      timeLeft = 15;
+      document.getElementById('explanation-box').classList.add('hidden');
+      document.getElementById('next-btn').classList.add('hidden');
+
+      const currentQ = questions[currentQuestionIndex];
+      document.getElementById('question-count').innerText = `Fråga ${currentQuestionIndex + 1} av ${questions.length}`;
+      document.getElementById('question-text').innerText = currentQ.question;
+
+      const container = document.getElementById('options-container');
+      container.innerHTML = '';
+
+      currentQ.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = "w-full p-4 text-left rounded-xl bg-slate-700/60 hover:bg-slate-700 border border-slate-600 transition flex justify-between items-center font-medium";
+        btn.innerHTML = `<span>${opt}</span><i class="fa-regular fa-circle text-slate-400"></i>`;
+        btn.onclick = () => selectAnswer(idx, btn);
+        container.appendChild(btn);
+      });
+
+      startTimer();
+    }
+
+    function startTimer() {
+      clearInterval(timer);
+      document.getElementById('timer').innerHTML = `<i class="fa-regular fa-clock mr-1"></i> ${timeLeft}s`;
+      
+      timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').innerHTML = `<i class="fa-regular fa-clock mr-1"></i> ${timeLeft}s`;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          if (!answered) handleTimeOut();
+        }
+      }, 1000);
+    }
+
+    function selectAnswer(index, btnElement) {
+      if (answered) return;
+      answered = true;
+      clearInterval(timer);
+
+      const currentQ = questions[currentQuestionIndex];
+      const buttons = document.getElementById('options-container').children;
+
+      if (index === currentQ.correct) {
+        score++;
+        btnElement.className = "w-full p-4 text-left rounded-xl bg-emerald-600/30 border border-emerald-500 text-emerald-200 transition flex justify-between items-center font-medium";
+        btnElement.innerHTML = `<span>${currentQ.options[index]}</span><i class="fa-solid fa-circle-check text-emerald-400"></i>`;
+      } else {
+        btnElement.className = "w-full p-4 text-left rounded-xl bg-rose-600/30 border border-rose-500 text-rose-200 transition flex justify-between items-center font-medium";
+        btnElement.innerHTML = `<span>${currentQ.options[index]}</span><i class="fa-solid fa-circle-xmark text-rose-400"></i>`;
+        
+        // Visa rätt svar
+        buttons[currentQ.correct].className = "w-full p-4 text-left rounded-xl bg-emerald-600/30 border border-emerald-500 text-emerald-200 flex justify-between items-center font-medium";
+      }
+
+      showExplanation(currentQ.explanation);
+    }
+
+    function handleTimeOut() {
+      answered = true;
+      const currentQ = questions[currentQuestionIndex];
+      const buttons = document.getElementById('options-container').children;
+      buttons[currentQ.correct].className = "w-full p-4 text-left rounded-xl bg-emerald-600/30 border border-emerald-500 text-emerald-200 flex justify-between items-center font-medium";
+      showExplanation("Tiden tog slut! " + currentQ.explanation);
+    }
+
+    function showExplanation(text) {
+      const expBox = document.getElementById('explanation-box');
+      expBox.className = "p-4 rounded-xl text-sm border bg-slate-700/40 border-slate-600 text-slate-300";
+      expBox.innerText = text;
+      expBox.classList.remove('hidden');
+      document.getElementById('next-btn').classList.remove('hidden');
+    }
+
+    function nextQuestion() {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        loadQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      document.getElementById('quiz-screen').classList.add('hidden');
+      document.getElementById('result-screen').classList.remove('hidden');
+      document.getElementById('final-score').innerText = `${score} / ${questions.length}`;
+    }
+
+    function resetQuiz() {
+      document.getElementById('result-screen').classList.add('hidden');
+      document.getElementById('start-screen').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
