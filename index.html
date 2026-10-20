@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quiz App med Adminvy</title>
+  <title>Torslanda Dartklubb - Dartquiz</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Supabase JS Library -->
@@ -15,7 +15,9 @@
     
     <!-- NAVIGERING -->
     <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-700">
-      <h1 class="text-xl font-bold text-indigo-400"><i class="fa-solid fa-brain mr-2"></i>QuizApp</h1>
+      <h1 class="text-xl font-bold text-indigo-400 flex items-center">
+        <i class="fa-solid fa-bullseye mr-2"></i>Torslanda Dartklubb
+      </h1>
       <div class="space-x-2">
         <button onclick="showSection('quiz-start')" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium transition">
           <i class="fa-solid fa-play mr-1"></i> Spela
@@ -29,10 +31,10 @@
     <!-- 1. START SKÄRM -->
     <div id="section-quiz-start" class="text-center space-y-6">
       <div class="inline-block p-4 bg-indigo-600/20 rounded-full text-indigo-400">
-        <i class="fa-solid fa-graduation-cap text-5xl"></i>
+        <i class="fa-solid fa-bullseye text-5xl"></i>
       </div>
-      <h2 class="text-3xl font-bold">Välkommen till Quizet!</h2>
-      <p class="text-slate-400">Testa dina kunskaper i frågor hämtade direkt från databasen.</p>
+      <h2 class="text-3xl font-bold">Dartquiz</h2>
+      <p class="text-slate-400">Testa dina kunskaper om dart och träffa mitt i prick!</p>
       
       <button onclick="startQuiz()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl transition text-lg shadow-lg shadow-indigo-600/30">
         Starta Quiz <i class="fa-solid fa-arrow-right ml-2"></i>
@@ -66,7 +68,7 @@
       <div class="inline-block p-4 bg-yellow-500/20 rounded-full text-yellow-400">
         <i class="fa-solid fa-trophy text-5xl"></i>
       </div>
-      <h2 class="text-3xl font-bold">Bra jobbat!</h2>
+      <h2 class="text-3xl font-bold">Snygg serie!</h2>
       <div class="bg-slate-700/50 p-6 rounded-xl border border-slate-700">
         <p class="text-slate-400 text-sm">Din poäng</p>
         <p id="final-score" class="text-4xl font-extrabold text-indigo-400 mt-1">0 / 0</p>
@@ -86,31 +88,31 @@
         
         <div>
           <label class="block text-xs font-medium text-slate-400 mb-1">Frågetext</label>
-          <input type="text" id="admin-question" required placeholder="t.ex. Vad heter Sveriges huvudstad?" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+          <input type="text" id="admin-question" required placeholder="t.ex. Hur många poäng ger bullseye?" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-indigo-500">
         </div>
 
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="block text-xs font-medium text-slate-400 mb-1">Alternativ 1 (Rätt svar)</label>
-            <input type="text" id="admin-opt0" required placeholder="Stockholm" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white focus:outline-none">
+            <input type="text" id="admin-opt0" required placeholder="50 poäng" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white focus:outline-none">
           </div>
           <div>
             <label class="block text-xs font-medium text-slate-400 mb-1">Alternativ 2</label>
-            <input type="text" id="admin-opt1" required placeholder="Göteborg" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white focus:outline-none">
+            <input type="text" id="admin-opt1" required placeholder="25 poäng" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white focus:outline-none">
           </div>
           <div>
             <label class="block text-xs font-medium text-slate-400 mb-1">Alternativ 3</label>
-            <input type="text" id="admin-opt2" required placeholder="Malmö" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white focus:outline-none">
+            <input type="text" id="admin-opt2" required placeholder="100 poäng" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white focus:outline-none">
           </div>
           <div>
             <label class="block text-xs font-medium text-slate-400 mb-1">Alternativ 4</label>
-            <input type="text" id="admin-opt3" required placeholder="Uppsala" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white focus:outline-none">
+            <input type="text" id="admin-opt3" required placeholder="60 poäng" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white focus:outline-none">
           </div>
         </div>
 
         <div>
           <label class="block text-xs font-medium text-slate-400 mb-1">Förklaring / Kommentar vid svar</label>
-          <input type="text" id="admin-explanation" placeholder="t.ex. Stockholm blev officiell huvudstad 1436." class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white focus:outline-none">
+          <input type="text" id="admin-explanation" placeholder="t.ex. Innerbull ger 50 poäng och outer bull ger 25." class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white focus:outline-none">
         </div>
 
         <button type="submit" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 font-bold rounded-lg transition text-sm">
@@ -148,7 +150,6 @@
       if (sectionId === 'admin') loadAdminQuestions();
     }
 
-    // Lösenordsskydd för adminvyn
     function requestAdminAccess() {
       const password = prompt("Ange adminlösenord:");
       if (password === "admin") {
@@ -158,7 +159,6 @@
       }
     }
 
-    // Slumpa en array (Fisher-Yates shuffle)
     function shuffleArray(array) {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -174,7 +174,6 @@
         return;
       }
 
-      // Slumpa ordningen på frågorna
       questions = shuffleArray(data);
       currentQuestionIndex = 0;
       score = 0;
