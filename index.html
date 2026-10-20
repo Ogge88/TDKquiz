@@ -20,7 +20,7 @@
         <button onclick="showSection('quiz-start')" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium transition">
           <i class="fa-solid fa-play mr-1"></i> Spela
         </button>
-        <button onclick="showSection('admin')" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-medium transition">
+        <button onclick="requestAdminAccess()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-medium transition">
           <i class="fa-solid fa-gear mr-1"></i> Adminvy
         </button>
       </div>
@@ -129,8 +129,7 @@
   </div>
 
   <script>
-    // Byt ut dessa mot dina riktiga Supabase-värden inom citattecknen:
-const SUPABASE_URL = "https://uisjltlgiorwlzapwvtf.supabase.co";
+    const SUPABASE_URL = "https://uisjltlgiorwlzapwvtf.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_6gyp5co6M5q9wH8k-umRLw_RmnM7pC7";
     
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -149,6 +148,25 @@ const SUPABASE_URL = "https://uisjltlgiorwlzapwvtf.supabase.co";
       if (sectionId === 'admin') loadAdminQuestions();
     }
 
+    // Lösenordsskydd för adminvyn
+    function requestAdminAccess() {
+      const password = prompt("Ange adminlösenord:");
+      if (password === "admin") {
+        showSection('admin');
+      } else if (password !== null) {
+        alert("Fel lösenord!");
+      }
+    }
+
+    // Slumpa en array (Fisher-Yates shuffle)
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
     async function startQuiz() {
       const { data, error } = await db.from('questions').select('*');
       if (error || !data || data.length === 0) {
@@ -156,7 +174,8 @@ const SUPABASE_URL = "https://uisjltlgiorwlzapwvtf.supabase.co";
         return;
       }
 
-      questions = data;
+      // Slumpa ordningen på frågorna
+      questions = shuffleArray(data);
       currentQuestionIndex = 0;
       score = 0;
       showSection('quiz-play');
