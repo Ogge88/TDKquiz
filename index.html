@@ -2,127 +2,132 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Torslanda Dartklubb - Dartquiz</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Supabase JS Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4">
+<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-3 sm:p-6 antialiased">
 
-  <div class="max-w-2xl w-full bg-slate-800 rounded-2xl shadow-2xl p-6 md:p-8 border border-slate-700 relative overflow-hidden">
+  <div class="max-w-2xl w-full bg-slate-800 rounded-2xl shadow-2xl p-4 sm:p-8 border border-slate-700 relative overflow-hidden my-auto">
     
     <!-- NAVIGERING -->
-    <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-700">
-      <h1 class="text-xl font-bold text-indigo-400 flex items-center">
-        <i class="fa-solid fa-bullseye mr-2"></i>Torslanda Dartklubb
+    <div class="flex flex-row justify-between items-center mb-5 pb-3 border-b border-slate-700 gap-2">
+      <h1 class="text-lg sm:text-xl font-bold text-indigo-400 flex items-center truncate">
+        <i class="fa-solid fa-bullseye mr-2 text-indigo-400 shrink-0"></i>
+        <span class="truncate">Torslanda Dartklubb</span>
       </h1>
-      <div class="space-x-2">
-        <button onclick="showSection('quiz-start')" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium transition">
+      <div class="flex items-center space-x-1.5 shrink-0">
+        <button onclick="showSection('quiz-start')" class="px-2.5 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-xs sm:text-sm font-medium transition active:scale-95">
           <i class="fa-solid fa-play mr-1"></i> Spela
         </button>
-        <button onclick="requestAdminAccess()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-medium transition">
-          <i class="fa-solid fa-gear mr-1"></i> Adminvy
+        <button onclick="requestAdminAccess()" class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-xs sm:text-sm font-medium transition active:scale-95">
+          <i class="fa-solid fa-gear mr-1"></i> Admin
         </button>
       </div>
     </div>
 
     <!-- 1. START SKÄRM -->
-    <div id="section-quiz-start" class="text-center space-y-6">
+    <div id="section-quiz-start" class="text-center space-y-5 py-2 sm:py-4">
       <div class="inline-block p-4 bg-indigo-600/20 rounded-full text-indigo-400">
-        <i class="fa-solid fa-bullseye text-5xl"></i>
+        <i class="fa-solid fa-bullseye text-4xl sm:text-5xl"></i>
       </div>
-      <h2 class="text-3xl font-bold">Dartquiz</h2>
-      <p class="text-slate-400">Testa dina kunskaper om dart och träffa mitt i prick!</p>
+      <div class="space-y-2">
+        <h2 class="text-2xl sm:text-3xl font-bold">Dartquiz</h2>
+        <p class="text-sm sm:text-base text-slate-400 px-2">Testa dina kunskaper om dart och träffa mitt i prick!</p>
+      </div>
       
-      <button onclick="startQuiz()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl transition text-lg shadow-lg shadow-indigo-600/30">
+      <button onclick="startQuiz()" class="w-full py-3.5 sm:py-4 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl transition text-base sm:text-lg shadow-lg shadow-indigo-600/30 active:scale-[0.98]">
         Starta Quiz <i class="fa-solid fa-arrow-right ml-2"></i>
       </button>
     </div>
 
     <!-- 2. QUIZ SKÄRM -->
-    <div id="section-quiz-play" class="hidden space-y-6">
-      <div class="flex justify-between items-center text-sm font-medium text-slate-400">
+    <div id="section-quiz-play" class="hidden space-y-5">
+      <div class="flex justify-between items-center text-xs sm:text-sm font-medium text-slate-400">
         <span id="question-count">Fråga 1</span>
-        <span id="timer" class="bg-slate-700 px-3 py-1 rounded-full text-indigo-300">
+        <span id="timer" class="bg-slate-700 px-2.5 py-1 rounded-full text-indigo-300 font-mono">
           <i class="fa-regular fa-clock mr-1"></i> 15s
         </span>
       </div>
 
-      <h2 id="question-text" class="text-xl font-semibold text-slate-100 min-h-[60px]">
+      <h2 id="question-text" class="text-lg sm:text-xl font-semibold text-slate-100 min-h-[50px] leading-snug">
         Laddar frågor...
       </h2>
 
-      <div id="options-container" class="space-y-3"></div>
+      <div id="options-container" class="space-y-2.5"></div>
 
-      <div id="explanation-box" class="hidden p-4 rounded-xl text-sm border"></div>
+      <div id="explanation-box" class="hidden p-3.5 rounded-xl text-xs sm:text-sm border leading-relaxed"></div>
 
-      <button id="next-btn" onclick="nextQuestion()" class="hidden w-full py-3 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl transition">
+      <button id="next-btn" onclick="nextQuestion()" class="hidden w-full py-3 sm:py-3.5 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl transition text-sm sm:text-base active:scale-[0.98]">
         Nästa fråga <i class="fa-solid fa-chevron-right ml-1"></i>
       </button>
     </div>
 
     <!-- 3. RESULTAT SKÄRM -->
-    <div id="section-quiz-result" class="hidden text-center space-y-6">
+    <div id="section-quiz-result" class="hidden text-center space-y-5 py-2 sm:py-4">
       <div class="inline-block p-4 bg-yellow-500/20 rounded-full text-yellow-400">
-        <i class="fa-solid fa-trophy text-5xl"></i>
+        <i class="fa-solid fa-trophy text-4xl sm:text-5xl"></i>
       </div>
-      <h2 class="text-3xl font-bold">Snygg serie!</h2>
-      <div class="bg-slate-700/50 p-6 rounded-xl border border-slate-700">
-        <p class="text-slate-400 text-sm">Din poäng</p>
-        <p id="final-score" class="text-4xl font-extrabold text-indigo-400 mt-1">0 / 0</p>
+      <h2 class="text-2xl sm:text-3xl font-bold">Snygg serie!</h2>
+      <div class="bg-slate-700/50 p-5 rounded-xl border border-slate-700">
+        <p class="text-slate-400 text-xs sm:text-sm">Din poäng</p>
+        <p id="final-score" class="text-3xl sm:text-4xl font-extrabold text-indigo-400 mt-1">0 / 0</p>
       </div>
 
-      <button onclick="showSection('quiz-start')" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl transition text-lg">
+      <button onclick="showSection('quiz-start')" class="w-full py-3.5 sm:py-4 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl transition text-base sm:text-lg active:scale-[0.98]">
         Spela igen <i class="fa-solid fa-rotate-right ml-2"></i>
       </button>
     </div>
 
     <!-- 4. ADMINVY -->
-    <div id="section-admin" class="hidden space-y-6">
-      <h2 class="text-2xl font-bold text-slate-100"><i class="fa-solid fa-list-check mr-2 text-indigo-400"></i>Hantering av Frågor</h2>
+    <div id="section-admin" class="hidden space-y-5">
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-100 flex items-center">
+        <i class="fa-solid fa-list-check mr-2 text-indigo-400"></i>Hantering av Frågor
+      </h2>
       
-      <form onsubmit="handleAddQuestion(event)" class="bg-slate-700/40 p-4 rounded-xl border border-slate-600 space-y-4">
-        <h3 class="font-semibold text-indigo-300">Lägg till ny fråga</h3>
+      <form onsubmit="handleAddQuestion(event)" class="bg-slate-700/40 p-3.5 sm:p-4 rounded-xl border border-slate-600 space-y-3.5">
+        <h3 class="font-semibold text-indigo-300 text-sm sm:text-base">Lägg till ny fråga</h3>
         
         <div>
           <label class="block text-xs font-medium text-slate-400 mb-1">Frågetext</label>
-          <input type="text" id="admin-question" required placeholder="t.ex. Hur många poäng ger bullseye?" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+          <input type="text" id="admin-question" required placeholder="t.ex. Hur många poäng ger bullseye?" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
         </div>
 
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <div>
             <label class="block text-xs font-medium text-slate-400 mb-1">Alternativ 1 (Rätt svar)</label>
-            <input type="text" id="admin-opt0" required placeholder="50 poäng" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white focus:outline-none">
+            <input type="text" id="admin-opt0" required placeholder="50 poäng" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
           </div>
           <div>
             <label class="block text-xs font-medium text-slate-400 mb-1">Alternativ 2</label>
-            <input type="text" id="admin-opt1" required placeholder="25 poäng" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white focus:outline-none">
+            <input type="text" id="admin-opt1" required placeholder="25 poäng" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
           </div>
           <div>
             <label class="block text-xs font-medium text-slate-400 mb-1">Alternativ 3</label>
-            <input type="text" id="admin-opt2" required placeholder="100 poäng" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white focus:outline-none">
+            <input type="text" id="admin-opt2" required placeholder="100 poäng" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
           </div>
           <div>
             <label class="block text-xs font-medium text-slate-400 mb-1">Alternativ 4</label>
-            <input type="text" id="admin-opt3" required placeholder="60 poäng" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white focus:outline-none">
+            <input type="text" id="admin-opt3" required placeholder="60 poäng" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
           </div>
         </div>
 
         <div>
           <label class="block text-xs font-medium text-slate-400 mb-1">Förklaring / Kommentar vid svar</label>
-          <input type="text" id="admin-explanation" placeholder="t.ex. Innerbull ger 50 poäng och outer bull ger 25." class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white focus:outline-none">
+          <input type="text" id="admin-explanation" placeholder="t.ex. Innerbull ger 50 poäng." class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
         </div>
 
-        <button type="submit" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 font-bold rounded-lg transition text-sm">
+        <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 font-bold rounded-lg transition text-sm active:scale-[0.98]">
           <i class="fa-solid fa-plus mr-1"></i> Spara fråga i databasen
         </button>
       </form>
 
-      <div class="space-y-3">
-        <h3 class="font-semibold text-slate-300">Befintliga frågor i databasen:</h3>
-        <div id="admin-questions-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+      <div class="space-y-2.5">
+        <h3 class="font-semibold text-slate-300 text-sm sm:text-base">Befintliga frågor i databasen:</h3>
+        <div id="admin-questions-list" class="space-y-2 max-h-52 sm:max-h-60 overflow-y-auto pr-1">
           <p class="text-slate-500 text-sm">Laddar frågor...</p>
         </div>
       </div>
@@ -196,8 +201,8 @@
 
       currentQ.options.forEach((opt, idx) => {
         const btn = document.createElement('button');
-        btn.className = "w-full p-4 text-left rounded-xl bg-slate-700/60 hover:bg-slate-700 border border-slate-600 transition flex justify-between items-center font-medium";
-        btn.innerHTML = `<span>${opt}</span><i class="fa-regular fa-circle text-slate-400"></i>`;
+        btn.className = "w-full p-3.5 sm:p-4 text-left rounded-xl bg-slate-700/60 hover:bg-slate-700 active:bg-slate-600 border border-slate-600 transition flex justify-between items-center font-medium text-sm sm:text-base active:scale-[0.99]";
+        btn.innerHTML = `<span>${opt}</span><i class="fa-regular fa-circle text-slate-400 ml-2 shrink-0"></i>`;
         btn.onclick = () => selectAnswer(idx, btn);
         container.appendChild(btn);
       });
@@ -229,12 +234,12 @@
 
       if (index === currentQ.correct) {
         score++;
-        btnElement.className = "w-full p-4 text-left rounded-xl bg-emerald-600/30 border border-emerald-500 text-emerald-200 transition flex justify-between items-center font-medium";
-        btnElement.innerHTML = `<span>${currentQ.options[index]}</span><i class="fa-solid fa-circle-check text-emerald-400"></i>`;
+        btnElement.className = "w-full p-3.5 sm:p-4 text-left rounded-xl bg-emerald-600/30 border border-emerald-500 text-emerald-200 transition flex justify-between items-center font-medium text-sm sm:text-base";
+        btnElement.innerHTML = `<span>${currentQ.options[index]}</span><i class="fa-solid fa-circle-check text-emerald-400 ml-2 shrink-0"></i>`;
       } else {
-        btnElement.className = "w-full p-4 text-left rounded-xl bg-rose-600/30 border border-rose-500 text-rose-200 transition flex justify-between items-center font-medium";
-        btnElement.innerHTML = `<span>${currentQ.options[index]}</span><i class="fa-solid fa-circle-xmark text-rose-400"></i>`;
-        buttons[currentQ.correct].className = "w-full p-4 text-left rounded-xl bg-emerald-600/30 border border-emerald-500 text-emerald-200 flex justify-between items-center font-medium";
+        btnElement.className = "w-full p-3.5 sm:p-4 text-left rounded-xl bg-rose-600/30 border border-rose-500 text-rose-200 transition flex justify-between items-center font-medium text-sm sm:text-base";
+        btnElement.innerHTML = `<span>${currentQ.options[index]}</span><i class="fa-solid fa-circle-xmark text-rose-400 ml-2 shrink-0"></i>`;
+        buttons[currentQ.correct].className = "w-full p-3.5 sm:p-4 text-left rounded-xl bg-emerald-600/30 border border-emerald-500 text-emerald-200 flex justify-between items-center font-medium text-sm sm:text-base";
       }
 
       showExplanation(currentQ.explanation || "Ingen förklaring angiven.");
@@ -244,13 +249,13 @@
       answered = true;
       const currentQ = questions[currentQuestionIndex];
       const buttons = document.getElementById('options-container').children;
-      buttons[currentQ.correct].className = "w-full p-4 text-left rounded-xl bg-emerald-600/30 border border-emerald-500 text-emerald-200 flex justify-between items-center font-medium";
+      buttons[currentQ.correct].className = "w-full p-3.5 sm:p-4 text-left rounded-xl bg-emerald-600/30 border border-emerald-500 text-emerald-200 flex justify-between items-center font-medium text-sm sm:text-base";
       showExplanation("Tiden tog slut! " + (currentQ.explanation || ""));
     }
 
     function showExplanation(text) {
       const expBox = document.getElementById('explanation-box');
-      expBox.className = "p-4 rounded-xl text-sm border bg-slate-700/40 border-slate-600 text-slate-300";
+      expBox.className = "p-3.5 rounded-xl text-xs sm:text-sm border bg-slate-700/40 border-slate-600 text-slate-300";
       expBox.innerText = text;
       expBox.classList.remove('hidden');
       document.getElementById('next-btn').classList.remove('hidden');
@@ -284,13 +289,13 @@
       listEl.innerHTML = '';
       data.forEach(q => {
         const item = document.createElement('div');
-        item.className = "flex justify-between items-center p-3 bg-slate-700/50 rounded-lg border border-slate-600 text-sm";
+        item.className = "flex justify-between items-center p-3 bg-slate-700/50 rounded-lg border border-slate-600 text-xs sm:text-sm";
         item.innerHTML = `
           <div class="truncate mr-2">
             <p class="font-medium text-slate-200 truncate">${q.question}</p>
-            <p class="text-xs text-slate-400">Rätt svar: ${q.options[q.correct]}</p>
+            <p class="text-[11px] sm:text-xs text-slate-400">Rätt svar: ${q.options[q.correct]}</p>
           </div>
-          <button onclick="deleteQuestion(${q.id})" class="text-rose-400 hover:text-rose-300 p-2"><i class="fa-solid fa-trash"></i></button>
+          <button onclick="deleteQuestion(${q.id})" class="text-rose-400 hover:text-rose-300 p-2 shrink-0"><i class="fa-solid fa-trash"></i></button>
         `;
         listEl.appendChild(item);
       });
