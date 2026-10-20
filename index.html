@@ -13,7 +13,7 @@
 
   <div class="max-w-2xl w-full bg-slate-800 rounded-2xl shadow-2xl p-6 md:p-8 border border-slate-700 relative overflow-hidden">
     
-    <!-- NAVIGERING MELLAN QUIZ OCH ADMIN -->
+    <!-- NAVIGERING -->
     <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-700">
       <h1 class="text-xl font-bold text-indigo-400"><i class="fa-solid fa-brain mr-2"></i>QuizApp</h1>
       <div class="space-x-2">
@@ -77,11 +77,10 @@
       </button>
     </div>
 
-    <!-- 4. ADMINVY (HANTERA FRÅGOR) -->
+    <!-- 4. ADMINVY -->
     <div id="section-admin" class="hidden space-y-6">
       <h2 class="text-2xl font-bold text-slate-100"><i class="fa-solid fa-list-check mr-2 text-indigo-400"></i>Hantering av Frågor</h2>
       
-      <!-- FORMULÄR: LÄGG TILL FRÅGA -->
       <form onsubmit="handleAddQuestion(event)" class="bg-slate-700/40 p-4 rounded-xl border border-slate-600 space-y-4">
         <h3 class="font-semibold text-indigo-300">Lägg till ny fråga</h3>
         
@@ -119,7 +118,6 @@
         </button>
       </form>
 
-      <!-- LISTA ÖVER BEFINTLIGA FRÅGOR -->
       <div class="space-y-3">
         <h3 class="font-semibold text-slate-300">Befintliga frågor i databasen:</h3>
         <div id="admin-questions-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
@@ -131,15 +129,12 @@
   </div>
 
   <script>
-    // -------------------------------------------------------------
-    // SUPABASE KONFIGURATION (FYLL I DINA EGNA NYCKLAR HÄR)
-    // -------------------------------------------------------------
-    const SUPABASE_URL = https://uisjltlgiorwlzapwvtf.supabase.co/rest/v1/;
-    const SUPABASE_ANON_KEY = sb_publishable_6gyp5co6M5q9wH8k-umRLw_RmnM7pC7;
+    // Byt ut dessa mot dina riktiga Supabase-värden inom citattecknen:
+    const SUPABASE_URL = "DITT_PROJEKT_URL_HÄR";
+    const SUPABASE_ANON_KEY = "DIN_SB_PUBLISHABLE_NYCKEL_HÄR";
     
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Global tillstånd
     let questions = [];
     let currentQuestionIndex = 0;
     let score = 0;
@@ -147,7 +142,6 @@
     let timeLeft = 15;
     let answered = false;
 
-    // Byt sektion i UI
     function showSection(sectionId) {
       document.querySelectorAll('[id^="section-"]').forEach(el => el.classList.add('hidden'));
       document.getElementById(`section-${sectionId}`).classList.remove('hidden');
@@ -155,9 +149,7 @@
       if (sectionId === 'admin') loadAdminQuestions();
     }
 
-    // --- QUIZ LOGIK ---
     async function startQuiz() {
-      // Hämta färska frågor från Supabase
       const { data, error } = await db.from('questions').select('*');
       if (error || !data || data.length === 0) {
         alert("Kunde inte hämta frågor från databasen. Kontrollera Supabase-nycklarna!");
@@ -260,7 +252,6 @@
       document.getElementById('final-score').innerText = `${score} / ${questions.length}`;
     }
 
-    // --- ADMIN LOGIK (LÄGG TILL / TA BORT) ---
     async function loadAdminQuestions() {
       const listEl = document.getElementById('admin-questions-list');
       listEl.innerHTML = '<p class="text-slate-500 text-sm">Hämtar frågor...</p>';
@@ -301,7 +292,7 @@
         {
           question: question,
           options: [opt0, opt1, opt2, opt3],
-          correct: 0, // Första alternativet sätts alltid som rätt svar
+          correct: 0,
           explanation: explanation
         }
       ]);
@@ -309,7 +300,6 @@
       if (error) {
         alert("Fel när frågan sparades: " + error.message);
       } else {
-        // Rensa formulär och ladda om lista
         e.target.reset();
         loadAdminQuestions();
       }
