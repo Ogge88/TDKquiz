@@ -1,4 +1,11 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
+import { Play, RotateCcw, Trophy, CheckCircle2, XCircle, ... } from 'lucide-react';
+
+export default function Home() {
+  
+}import React, { useState, useEffect } from 'react';
 import { 
   Trophy, 
   Clock, 
