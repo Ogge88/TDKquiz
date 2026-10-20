@@ -3,112 +3,171 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mitt Quiz</title>
-  <!-- Tailwind CSS för snygg design -->
+  <title>Quiz App med Adminvy</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome för ikoner -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Supabase JS Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4">
 
-  <div class="max-w-xl w-full bg-slate-800 rounded-2xl shadow-2xl p-6 md:p-8 border border-slate-700">
+  <div class="max-w-2xl w-full bg-slate-800 rounded-2xl shadow-2xl p-6 md:p-8 border border-slate-700 relative overflow-hidden">
     
-    <!-- START SKÄRM -->
-    <div id="start-screen" class="text-center space-y-6">
-      <div class="inline-block p-4 bg-indigo-600/20 rounded-full text-indigo-400 mb-2">
-        <i class="fa-solid fa-brain text-5xl"></i>
+    <!-- NAVIGERING MELLAN QUIZ OCH ADMIN -->
+    <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-700">
+      <h1 class="text-xl font-bold text-indigo-400"><i class="fa-solid fa-brain mr-2"></i>QuizApp</h1>
+      <div class="space-x-2">
+        <button onclick="showSection('quiz-start')" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium transition">
+          <i class="fa-solid fa-play mr-1"></i> Spela
+        </button>
+        <button onclick="showSection('admin')" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-medium transition">
+          <i class="fa-solid fa-gear mr-1"></i> Adminvy
+        </button>
       </div>
-      <h1 class="text-3xl font-bold">Välkommen till Quizet!</h1>
-      <p class="text-slate-400">Testa dina kunskaper i vår utmanande frågesport.</p>
+    </div>
+
+    <!-- 1. START SKÄRM -->
+    <div id="section-quiz-start" class="text-center space-y-6">
+      <div class="inline-block p-4 bg-indigo-600/20 rounded-full text-indigo-400">
+        <i class="fa-solid fa-graduation-cap text-5xl"></i>
+      </div>
+      <h2 class="text-3xl font-bold">Välkommen till Quizet!</h2>
+      <p class="text-slate-400">Testa dina kunskaper i frågor hämtade direkt från databasen.</p>
       
       <button onclick="startQuiz()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl transition text-lg shadow-lg shadow-indigo-600/30">
         Starta Quiz <i class="fa-solid fa-arrow-right ml-2"></i>
       </button>
     </div>
 
-    <!-- QUIZ SKÄRM -->
-    <div id="quiz-screen" class="hidden space-y-6">
-      <!-- Header med framsteg -->
+    <!-- 2. QUIZ SKÄRM -->
+    <div id="section-quiz-play" class="hidden space-y-6">
       <div class="flex justify-between items-center text-sm font-medium text-slate-400">
-        <span id="question-count">Fråga 1 av 3</span>
+        <span id="question-count">Fråga 1</span>
         <span id="timer" class="bg-slate-700 px-3 py-1 rounded-full text-indigo-300">
           <i class="fa-regular fa-clock mr-1"></i> 15s
         </span>
       </div>
 
-      <!-- Fråga -->
       <h2 id="question-text" class="text-xl font-semibold text-slate-100 min-h-[60px]">
-        Frågan laddas...
+        Laddar frågor...
       </h2>
 
-      <!-- Svarsalternativ -->
-      <div id="options-container" class="space-y-3">
-        <!-- Genereras dinamisk i JavaScript -->
-      </div>
+      <div id="options-container" class="space-y-3"></div>
 
-      <!-- Förklaring (Visas när man svarat) -->
       <div id="explanation-box" class="hidden p-4 rounded-xl text-sm border"></div>
 
-      <!-- Nästa-knapp -->
       <button id="next-btn" onclick="nextQuestion()" class="hidden w-full py-3 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl transition">
         Nästa fråga <i class="fa-solid fa-chevron-right ml-1"></i>
       </button>
     </div>
 
-    <!-- RESULTAT SKÄRM -->
-    <div id="result-screen" class="hidden text-center space-y-6">
+    <!-- 3. RESULTAT SKÄRM -->
+    <div id="section-quiz-result" class="hidden text-center space-y-6">
       <div class="inline-block p-4 bg-yellow-500/20 rounded-full text-yellow-400">
         <i class="fa-solid fa-trophy text-5xl"></i>
       </div>
       <h2 class="text-3xl font-bold">Bra jobbat!</h2>
-      <p class="text-slate-400">Du slutförde quizet.</p>
-
       <div class="bg-slate-700/50 p-6 rounded-xl border border-slate-700">
         <p class="text-slate-400 text-sm">Din poäng</p>
-        <p id="final-score" class="text-4xl font-extrabold text-indigo-400 mt-1">0 / 3</p>
+        <p id="final-score" class="text-4xl font-extrabold text-indigo-400 mt-1">0 / 0</p>
       </div>
 
-      <button onclick="resetQuiz()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl transition text-lg">
+      <button onclick="showSection('quiz-start')" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl transition text-lg">
         Spela igen <i class="fa-solid fa-rotate-right ml-2"></i>
       </button>
+    </div>
+
+    <!-- 4. ADMINVY (HANTERA FRÅGOR) -->
+    <div id="section-admin" class="hidden space-y-6">
+      <h2 class="text-2xl font-bold text-slate-100"><i class="fa-solid fa-list-check mr-2 text-indigo-400"></i>Hantering av Frågor</h2>
+      
+      <!-- FORMULÄR: LÄGG TILL FRÅGA -->
+      <form onsubmit="handleAddQuestion(event)" class="bg-slate-700/40 p-4 rounded-xl border border-slate-600 space-y-4">
+        <h3 class="font-semibold text-indigo-300">Lägg till ny fråga</h3>
+        
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Frågetext</label>
+          <input type="text" id="admin-question" required placeholder="t.ex. Vad heter Sveriges huvudstad?" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Alternativ 1 (Rätt svar)</label>
+            <input type="text" id="admin-opt0" required placeholder="Stockholm" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Alternativ 2</label>
+            <input type="text" id="admin-opt1" required placeholder="Göteborg" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Alternativ 3</label>
+            <input type="text" id="admin-opt2" required placeholder="Malmö" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Alternativ 4</label>
+            <input type="text" id="admin-opt3" required placeholder="Uppsala" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white focus:outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Förklaring / Kommentar vid svar</label>
+          <input type="text" id="admin-explanation" placeholder="t.ex. Stockholm blev officiell huvudstad 1436." class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white focus:outline-none">
+        </div>
+
+        <button type="submit" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 font-bold rounded-lg transition text-sm">
+          <i class="fa-solid fa-plus mr-1"></i> Spara fråga i databasen
+        </button>
+      </form>
+
+      <!-- LISTA ÖVER BEFINTLIGA FRÅGOR -->
+      <div class="space-y-3">
+        <h3 class="font-semibold text-slate-300">Befintliga frågor i databasen:</h3>
+        <div id="admin-questions-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+          <p class="text-slate-500 text-sm">Laddar frågor...</p>
+        </div>
+      </div>
     </div>
 
   </div>
 
   <script>
-    // Frågor
-    const questions = [
-      {
-        question: "Vilket land har flest öar i världen?",
-        options: ["Sverige", "Kanada", "Indonesien", "Norge"],
-        correct: 0,
-        explanation: "Sverige har flest öar i världen, med över 267 000 öar!"
-      },
-      {
-        question: "Vilket år lanserades den första iPhonen?",
-        options: ["2005", "2007", "2009", "2010"],
-        correct: 1,
-        explanation: "Steve Jobs presenterade den första iPhonen i januari 2007."
-      },
-      {
-        question: "Vilket är världens största hav?",
-        options: ["Atlantiska oceanen", "Indiska oceanen", "Stilla havet", "Norra ishavet"],
-        correct: 2,
-        explanation: "Stilla havet täcker mer än 30% av jordens yta."
-      }
-    ];
+    // -------------------------------------------------------------
+    // SUPABASE KONFIGURATION (FYLL I DINA EGNA NYCKLAR HÄR)
+    // -------------------------------------------------------------
+    const SUPABASE_URL = https://uisjltlgiorwlzapwvtf.supabase.co/rest/v1/;
+    const SUPABASE_ANON_KEY = sb_publishable_6gyp5co6M5q9wH8k-umRLw_RmnM7pC7;
+    
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    // Global tillstånd
+    let questions = [];
     let currentQuestionIndex = 0;
     let score = 0;
     let timer;
     let timeLeft = 15;
     let answered = false;
 
-    function startQuiz() {
-      document.getElementById('start-screen').classList.add('hidden');
-      document.getElementById('quiz-screen').classList.remove('hidden');
+    // Byt sektion i UI
+    function showSection(sectionId) {
+      document.querySelectorAll('[id^="section-"]').forEach(el => el.classList.add('hidden'));
+      document.getElementById(`section-${sectionId}`).classList.remove('hidden');
+
+      if (sectionId === 'admin') loadAdminQuestions();
+    }
+
+    // --- QUIZ LOGIK ---
+    async function startQuiz() {
+      // Hämta färska frågor från Supabase
+      const { data, error } = await db.from('questions').select('*');
+      if (error || !data || data.length === 0) {
+        alert("Kunde inte hämta frågor från databasen. Kontrollera Supabase-nycklarna!");
+        return;
+      }
+
+      questions = data;
       currentQuestionIndex = 0;
       score = 0;
+      showSection('quiz-play');
       loadQuestion();
     }
 
@@ -165,12 +224,10 @@
       } else {
         btnElement.className = "w-full p-4 text-left rounded-xl bg-rose-600/30 border border-rose-500 text-rose-200 transition flex justify-between items-center font-medium";
         btnElement.innerHTML = `<span>${currentQ.options[index]}</span><i class="fa-solid fa-circle-xmark text-rose-400"></i>`;
-        
-        // Visa rätt svar
         buttons[currentQ.correct].className = "w-full p-4 text-left rounded-xl bg-emerald-600/30 border border-emerald-500 text-emerald-200 flex justify-between items-center font-medium";
       }
 
-      showExplanation(currentQ.explanation);
+      showExplanation(currentQ.explanation || "Ingen förklaring angiven.");
     }
 
     function handleTimeOut() {
@@ -178,7 +235,7 @@
       const currentQ = questions[currentQuestionIndex];
       const buttons = document.getElementById('options-container').children;
       buttons[currentQ.correct].className = "w-full p-4 text-left rounded-xl bg-emerald-600/30 border border-emerald-500 text-emerald-200 flex justify-between items-center font-medium";
-      showExplanation("Tiden tog slut! " + currentQ.explanation);
+      showExplanation("Tiden tog slut! " + (currentQ.explanation || ""));
     }
 
     function showExplanation(text) {
@@ -199,14 +256,74 @@
     }
 
     function showResults() {
-      document.getElementById('quiz-screen').classList.add('hidden');
-      document.getElementById('result-screen').classList.remove('hidden');
+      showSection('quiz-result');
       document.getElementById('final-score').innerText = `${score} / ${questions.length}`;
     }
 
-    function resetQuiz() {
-      document.getElementById('result-screen').classList.add('hidden');
-      document.getElementById('start-screen').classList.remove('hidden');
+    // --- ADMIN LOGIK (LÄGG TILL / TA BORT) ---
+    async function loadAdminQuestions() {
+      const listEl = document.getElementById('admin-questions-list');
+      listEl.innerHTML = '<p class="text-slate-500 text-sm">Hämtar frågor...</p>';
+
+      const { data, error } = await db.from('questions').select('*').order('created_at', { ascending: false });
+      
+      if (error) {
+        listEl.innerHTML = '<p class="text-rose-400 text-sm">Fel vid hämtning av frågor.</p>';
+        return;
+      }
+
+      listEl.innerHTML = '';
+      data.forEach(q => {
+        const item = document.createElement('div');
+        item.className = "flex justify-between items-center p-3 bg-slate-700/50 rounded-lg border border-slate-600 text-sm";
+        item.innerHTML = `
+          <div class="truncate mr-2">
+            <p class="font-medium text-slate-200 truncate">${q.question}</p>
+            <p class="text-xs text-slate-400">Rätt svar: ${q.options[q.correct]}</p>
+          </div>
+          <button onclick="deleteQuestion(${q.id})" class="text-rose-400 hover:text-rose-300 p-2"><i class="fa-solid fa-trash"></i></button>
+        `;
+        listEl.appendChild(item);
+      });
+    }
+
+    async function handleAddQuestion(e) {
+      e.preventDefault();
+
+      const question = document.getElementById('admin-question').value;
+      const opt0 = document.getElementById('admin-opt0').value;
+      const opt1 = document.getElementById('admin-opt1').value;
+      const opt2 = document.getElementById('admin-opt2').value;
+      const opt3 = document.getElementById('admin-opt3').value;
+      const explanation = document.getElementById('admin-explanation').value;
+
+      const { error } = await db.from('questions').insert([
+        {
+          question: question,
+          options: [opt0, opt1, opt2, opt3],
+          correct: 0, // Första alternativet sätts alltid som rätt svar
+          explanation: explanation
+        }
+      ]);
+
+      if (error) {
+        alert("Fel när frågan sparades: " + error.message);
+      } else {
+        // Rensa formulär och ladda om lista
+        e.target.reset();
+        loadAdminQuestions();
+      }
+    }
+
+    async function deleteQuestion(id) {
+      if (!confirm("Vill du verkligen ta bort denna fråga?")) return;
+      
+      const { error } = await db.from('questions').delete().eq('id', id);
+      if (error) {
+        alert("Kunde inte ta bort frågan: " + error.message);
+      } else {
+        loadAdminQuestions();
+      }
     }
   </script>
 </body>
