@@ -147,6 +147,7 @@
     let timer;
     let timeLeft = 15;
     let answered = false;
+    let currentOptions = []; // Håller koll på de slumpade alternativen för aktuell fråga
 
     function showSection(sectionId) {
       document.querySelectorAll('[id^="section-"]').forEach(el => el.classList.add('hidden'));
@@ -165,11 +166,12 @@
     }
 
     function shuffleArray(array) {
-      for (let i = array.length - 1; i > 0; i--) {
+      const newArray = [...array];
+      for (let i = newArray.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
       }
-      return array;
+      return newArray;
     }
 
     async function startQuiz() {
@@ -196,13 +198,22 @@
       document.getElementById('question-count').innerText = `Fråga ${currentQuestionIndex + 1} av ${questions.length}`;
       document.getElementById('question-text').innerText = currentQ.question;
 
+      // Skapa en lista med objekt för att hålla reda på vad som är rätt svar även när de slumpas
+      const optionsWithMeta = currentQ.options.map((optText, index) => ({
+        text: optText,
+        isCorrect: index === currentQ.correct
+      }));
+
+      // Slumpa ordningen på alternativen
+      currentOptions = shuffleArray(optionsWithMeta);
+
       const container = document.getElementById('options-container');
       container.innerHTML = '';
 
-      currentQ.options.forEach((opt, idx) => {
+      currentOptions.forEach((optObj, idx) => {
         const btn = document.createElement('button');
         btn.className = "w-full p-3.5 sm:p-4 text-left rounded-xl bg-slate-700/60 hover:bg-slate-700 active:bg-slate-600 border border-slate-600 transition flex justify-between items-center font-medium text-sm sm:text-base active:scale-[0.99]";
-        btn.innerHTML = `<span>${opt}</span><i class="fa-regular fa-circle text-slate-400 ml-2 shrink-0"></i>`;
+        btn.innerHTML = `<span>${optObj.text}</span><i class="fa-regular fa-circle text-slate-400 ml-2 shrink-0"></i>`;
         btn.onclick = () => selectAnswer(idx, btn);
         container.appendChild(btn);
       });
@@ -224,22 +235,26 @@
       }, 1000);
     }
 
-    function selectAnswer(index, btnElement) {
+    function selectAnswer(selectedIndex, btnElement) {
       if (answered) return;
       answered = true;
       clearInterval(timer);
 
       const currentQ = questions[currentQuestionIndex];
       const buttons = document.getElementById('options-container').children;
+      const correctIndexInShuffled = currentOptions.findIndex(o => o.isCorrect);
 
-      if (index === currentQ.correct) {
+      if (currentOptions[selectedIndex].isCorrect) {
         score++;
         btnElement.className = "w-full p-3.5 sm:p-4 text-left rounded-xl bg-emerald-600/30 border border-emerald-500 text-emerald-200 transition flex justify-between items-center font-medium text-sm sm:text-base";
-        btnElement.innerHTML = `<span>${currentQ.options[index]}</span><i class="fa-solid fa-circle-check text-emerald-400 ml-2 shrink-0"></i>`;
+        btnElement.innerHTML = `<span>${currentOptions[selectedIndex].text}</span><i class="fa-solid fa-circle-check text-emerald-400 ml-2 shrink-0"></i>`;
       } else {
         btnElement.className = "w-full p-3.5 sm:p-4 text-left rounded-xl bg-rose-600/30 border border-rose-500 text-rose-200 transition flex justify-between items-center font-medium text-sm sm:text-base";
-        btnElement.innerHTML = `<span>${currentQ.options[index]}</span><i class="fa-solid fa-circle-xmark text-rose-400 ml-2 shrink-0"></i>`;
-        buttons[currentQ.correct].className = "w-full p-3.5 sm:p-4 text-left rounded-xl bg-emerald-600/30 border border-emerald-500 text-emerald-200 flex justify-between items-center font-medium text-sm sm:text-base";
+        btnElement.innerHTML = `<span>${currentOptions[selectedIndex].text}</span><i class="fa-solid fa-circle-xmark text-rose-400 ml-2 shrink-0"></i>`;
+        
+        // Visa det rätta svaret
+        buttons[correctIndexInShuffled].className = "w-full p-3.5 sm:p-4 text-left rounded-xl bg-emerald-600/30 border border-emerald-500 text-emerald-200 flex justify-between items-center font-medium text-sm sm:text-base";
+        buttons[correctIndexInShuffled].innerHTML = `<span>${currentOptions[correctIndexInShuffled].text}</span><i class="fa-solid fa-circle-check text-emerald-400 ml-2 shrink-0"></i>`;
       }
 
       showExplanation(currentQ.explanation || "Ingen förklaring angiven.");
@@ -249,7 +264,11 @@
       answered = true;
       const currentQ = questions[currentQuestionIndex];
       const buttons = document.getElementById('options-container').children;
-      buttons[currentQ.correct].className = "w-full p-3.5 sm:p-4 text-left rounded-xl bg-emerald-600/30 border border-emerald-500 text-emerald-200 flex justify-between items-center font-medium text-sm sm:text-base";
+      const correctIndexInShuffled = currentOptions.findIndex(o => o.isCorrect);
+
+      buttons[correctIndexInShuffled].className = "w-full p-3.5 sm:p-4 text-left rounded-xl bg-emerald-600/30 border border-emerald-500 text-emerald-200 flex justify-between items-center font-medium text-sm sm:text-base";
+      buttons[correctIndexInShuffled].innerHTML = `<span>${currentOptions[correctIndexInShuffled].text}</span><i class="fa-solid fa-circle-check text-emerald-400 ml-2 shrink-0"></i>`;
+      
       showExplanation("Tiden tog slut! " + (currentQ.explanation || ""));
     }
 
